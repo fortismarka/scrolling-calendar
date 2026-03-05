@@ -32,9 +32,16 @@
 
   html, body {
     height: 100%;
-    background: #edf1f7;
+    background: #161d35;
     font-family: 'Figtree', sans-serif;
     color: var(--text-main);
+  }
+
+  .page-outer {
+    display: flex;
+    justify-content: center;
+    height: 100vh;
+    background: #161d35;
   }
 
   .page {
@@ -42,6 +49,9 @@
     flex-direction: column;
     height: 100vh;
     overflow: hidden;
+    width: 100%;
+    max-width: 920px;
+    box-shadow: 0 0 40px rgba(0,0,0,0.4);
   }
 
   /* ── TOP HEADER BAR ── */
@@ -144,7 +154,7 @@
     table-layout: fixed;
   }
 
-  colgroup col.col-month { width: 38px; }
+  colgroup col.col-month { width: 46px; }
   colgroup col.col-week  { width: 44px; }
   colgroup col.col-day   { width: calc((100% - 82px) / 7); }
 
@@ -199,25 +209,42 @@
     padding: 0;
     border-right: 2px solid var(--navy-light);
     border-bottom: 1px solid var(--navy-mid);
+    cursor: pointer;
+    transition: filter 0.15s;
   }
+
+  td.month-label:hover { filter: brightness(1.15); }
 
   td.month-label .month-inner {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     height: 100%;
     width: 100%;
+    gap: 3px;
   }
 
-  td.month-label .month-text {
+  td.month-label .month-name {
     writing-mode: vertical-lr;
     transform: rotate(180deg);
-    font-size: 9.5px;
-    font-weight: 700;
-    letter-spacing: 1.8px;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 2px;
     text-transform: uppercase;
-    white-space: nowrap;
-    line-height: 1;
+    color: rgba(255,255,255,0.85);
+    text-align: center;
+  }
+
+  td.month-label .month-year {
+    writing-mode: vertical-lr;
+    transform: rotate(180deg);
+    font-size: 8px;
+    font-weight: 400;
+    letter-spacing: 0.8px;
+    color: rgba(255,255,255,0.32);
+    font-family: 'DM Mono', monospace;
+    text-align: center;
   }
 
   /* Alternating month colors on label */
@@ -320,6 +347,33 @@
 
   td.day-cell.holiday:hover::after { opacity: 1; }
 
+  /* holiday nickname replaces date number */
+  td.day-cell.holiday-named .holiday-nick {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    line-height: 1.15;
+  }
+
+  td.day-cell.holiday-named .holiday-nick .hk-name {
+    font-size: 9.5px;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: #b36a00;
+    line-height: 1.2;
+    text-align: center;
+  }
+
+  td.day-cell.holiday-named .holiday-nick .hk-date {
+    font-size: 9px;
+    font-weight: 400;
+    color: #c49040;
+    opacity: 0.75;
+    font-family: 'DM Mono', monospace;
+  }
+
   /* ── TODAY ── */
   td.day-cell.today {
     border: 3px solid var(--today-color) !important;
@@ -336,6 +390,21 @@
     font-weight: 600;
     color: var(--select-color);
     z-index: 5;
+  }
+
+  /* ── SELECTED MONTH (precise cell-level borders) ── */
+  td.mhl {
+    background: var(--select-bg) !important;
+    color: var(--select-color);
+    border-color: rgba(26,115,232,0.18) !important;
+  }
+  td.mhl-t { border-top:    2.5px solid var(--select-color) !important; }
+  td.mhl-b { border-bottom: 2.5px solid var(--select-color) !important; }
+  td.mhl-l { border-left:   2.5px solid var(--select-color) !important; }
+  td.mhl-r { border-right:  2.5px solid var(--select-color) !important; }
+  td.month-label.selected-month-label {
+    border: 2.5px solid var(--select-color) !important;
+    filter: brightness(1.25);
   }
 
   /* ── SELECTED WEEK ── */
@@ -455,6 +524,7 @@
 </style>
 </head>
 <body>
+<div class="page-outer">
 <div class="page">
 
   <!-- TOP BAR -->
@@ -675,6 +745,7 @@ function dayColorClass(date) {
 // ── BUILD TABLE ───────────────────────────────────────────────────────────────
 
 const tbody = document.getElementById('calBody');
+const allCells = []; // allCells[rowIdx][dayIdx] = td
 let todayRow = null;
 
 weeks.forEach((week, rowIdx) => {
@@ -688,9 +759,15 @@ weeks.forEach((week, rowIdx) => {
     const td = document.createElement('td');
     td.className = `month-label ${mlColorClass(mg)}`;
     td.rowSpan = mg.rowspan;
-    td.innerHTML = `<div class="month-inner"><span class="month-text">${MONTH_NAMES[mg.month]} ${mg.year}</span></div>`;
+    td.innerHTML = `<div class="month-inner"><span class="month-name">${MONTH_NAMES[mg.month]}</span><span class="month-year">${mg.year}</span></div>`;
+    td.addEventListener('click', e => { e.stopPropagation(); handleMonthClick(mg, td); });
+    mg.labelTd = td;
     tr.appendChild(td);
   }
+
+  // Track rows per month group
+  if (!mg.rows) mg.rows = [];
+  mg.rows.push(tr);
 
   // Week number
   const wkTd = document.createElement('td');
@@ -718,6 +795,32 @@ weeks.forEach((week, rowIdx) => {
     if (holidays[hk]) {
       td.classList.add('holiday');
       td.dataset.holiday = holidays[hk];
+
+      const isObserved = holidays[hk].includes('(Observed)');
+
+      // Nickname map (only for non-observed holidays)
+      const nicknames = {
+        "New Year's Day":   date => String(date.getFullYear()),
+        "Martin Luther King Jr. Day": () => 'MLK',
+        "Presidents' Day":  () => 'Presidents\nDay',
+        "Memorial Day":     () => 'Memorial\nDay',
+        "Juneteenth":       () => 'Juneteenth',
+        "Independence Day": () => '4th\nJuly',
+        "Labor Day":        () => 'Labor\nDay',
+        "Columbus Day":     () => 'Columbus\nDay',
+        "Veterans Day":     () => 'Veterans\nDay',
+        "Thanksgiving Day": () => 'Thanksgiving',
+        "Christmas Day":    () => 'Christmas',
+      };
+
+      const matchKey = Object.keys(nicknames).find(k => holidays[hk] === k);
+      if (!isObserved && matchKey) {
+        const nick = nicknames[matchKey](date);
+        td.classList.add('holiday-named');
+        td.dataset.nick = nick;
+        const lines = nick.split('\n');
+        td.innerHTML = `<div class="holiday-nick">${lines.map((l,i) => `<span class="${i===0?'hk-name':'hk-date'}">${l}</span>`).join('')}</div>`;
+      }
     }
 
     // Today
@@ -727,7 +830,15 @@ weeks.forEach((week, rowIdx) => {
     }
 
     td.textContent = date.getDate();
+    if (td.classList.contains('holiday-named')) {
+      // nickname already set via innerHTML — restore it, textContent nuked it
+      const nick = td.dataset.nick;
+      const lines = nick.split('\n');
+      td.innerHTML = `<div class="holiday-nick">${lines.map((l,i) => `<span class="${i===0?'hk-name':'hk-date'}">${l}</span>`).join('')}</div>`;
+    }
     td.addEventListener('click', e => { e.stopPropagation(); handleDayClick(td); });
+    if (!allCells[rowIdx]) allCells[rowIdx] = [];
+    allCells[rowIdx][dayIdx] = td;
     tr.appendChild(td);
   });
 
@@ -757,13 +868,56 @@ function updateDiffCircle(targetDate) {
 
 // ── SELECTION STATE ───────────────────────────────────────────────────────────
 
-let selectedDay  = null;
-let selectedWeek = null;
+let selectedDay   = null;
+let selectedWeek  = null;
+let selectedMonth = null;
 
 function clearAll() {
   if (selectedDay)  { selectedDay.classList.remove('selected-day');   selectedDay  = null; }
   if (selectedWeek) { selectedWeek.classList.remove('selected-week'); selectedWeek = null; }
+  if (selectedMonth) {
+    if (selectedMonth.hlCells) {
+      selectedMonth.hlCells.forEach(td => td.classList.remove('mhl','mhl-t','mhl-b','mhl-l','mhl-r'));
+    }
+    if (selectedMonth.labelTd) selectedMonth.labelTd.classList.remove('selected-month-label');
+    selectedMonth = null;
+  }
   updateDiffCircle(null);
+}
+
+function highlightMonth(mg) {
+  const m = mg.month, y = mg.year;
+  const inSet = new Set();
+  for (let ri = 0; ri < weeks.length; ri++) {
+    for (let di = 0; di < 7; di++) {
+      const d = weeks[ri][di];
+      if (d.getMonth() === m && d.getFullYear() === y) inSet.add(`${ri}-${di}`);
+    }
+  }
+  const hlCells = [];
+  inSet.forEach(key => {
+    const [ri, di] = key.split('-').map(Number);
+    const td = allCells[ri] && allCells[ri][di];
+    if (!td) return;
+    td.classList.add('mhl');
+    if (!inSet.has(`${ri-1}-${di}`)) td.classList.add('mhl-t');
+    if (!inSet.has(`${ri+1}-${di}`)) td.classList.add('mhl-b');
+    if (!inSet.has(`${ri}-${di-1}`)) td.classList.add('mhl-l');
+    if (!inSet.has(`${ri}-${di+1}`)) td.classList.add('mhl-r');
+    hlCells.push(td);
+  });
+  mg.hlCells = hlCells;
+}
+
+function handleMonthClick(mg, td) {
+  const wasMe = selectedMonth === mg;
+  clearAll();
+  if (!wasMe) {
+    highlightMonth(mg);
+    td.classList.add('selected-month-label');
+    mg.labelTd = td;
+    selectedMonth = mg;
+  }
 }
 
 function handleDayClick(td) {
@@ -822,5 +976,7 @@ function updateMonthDisplay() {
 calScroll.addEventListener('scroll', updateMonthDisplay, { passive: true });
 updateMonthDisplay();
 </script>
+</div><!-- .page -->
+</div><!-- .page-outer -->
 </body>
 </html>
