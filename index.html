@@ -88,19 +88,6 @@
     opacity: 0.9;
   }
 
-  .topbar-divider {
-    width: 1px;
-    height: 22px;
-    background: rgba(255,255,255,0.15);
-  }
-
-  .topbar-sub {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgba(255,255,255,0.45);
-    letter-spacing: 0.5px;
-  }
-
   .topbar-right {
     margin-left: auto;
     display: flex;
@@ -126,16 +113,6 @@
   .today-badge:hover {
     background: var(--today-color);
     color: white;
-  }
-
-  #current-month-display {
-    font-size: 13px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.7);
-    min-width: 140px;
-    text-align: right;
-    font-family: 'DM Mono', monospace;
-    letter-spacing: 0.3px;
   }
 
   /* ── CALENDAR SCROLL AREA ── */
@@ -190,11 +167,8 @@
     color: rgba(255,255,255,0.45);
   }
 
-  thead tr th:last-child {
-    border-right: none;
-  }
+  thead tr th:last-child { border-right: none; }
 
-  /* Saturday and Sunday subtle header tint */
   thead tr th.th-sun,
   thead tr th.th-sat {
     color: rgba(255,200,150,0.85);
@@ -247,7 +221,6 @@
     text-align: center;
   }
 
-  /* Alternating month colors on label */
   td.month-label.ml-even {
     background: linear-gradient(180deg, #1e2a4a 0%, #1b2240 100%);
   }
@@ -282,7 +255,7 @@
     vertical-align: middle;
     height: var(--cell-h);
     font-size: 15px;
-    font-weight: 400;
+    font-weight: 600;
     cursor: pointer;
     border-right: 1px solid var(--border-main);
     border-bottom: 1px solid var(--border-main);
@@ -294,7 +267,7 @@
 
   td.day-cell:last-child { border-right: none; }
 
-  td.day-cell:hover:not(.today):not(.selected-day) {
+  td.day-cell:hover:not(.today):not(.drag-range) {
     background: #eef3fb !important;
   }
 
@@ -302,7 +275,7 @@
   td.month-even { background: var(--month-a); }
   td.month-odd  { background: var(--month-b); }
 
-  /* ── MONTH BOUNDARY (left edge when month starts mid-row) ── */
+  /* ── MONTH BOUNDARY ── */
   td.month-start {
     border-left: 2px solid var(--border-month) !important;
   }
@@ -323,7 +296,6 @@
     opacity: 0.7;
   }
 
-  /* holiday tooltip */
   td.day-cell.holiday::after {
     content: attr(data-holiday);
     position: absolute;
@@ -347,7 +319,6 @@
 
   td.day-cell.holiday:hover::after { opacity: 1; }
 
-  /* holiday nickname replaces date number */
   td.day-cell.holiday-named .holiday-nick {
     display: flex;
     flex-direction: column;
@@ -383,16 +354,18 @@
     z-index: 5;
   }
 
-  /* ── SELECTED DAY ── */
-  td.day-cell.selected-day {
-    border: 3px solid var(--select-color) !important;
+  /* ── DRAG RANGE SELECTION ── */
+  td.drag-range {
     background: var(--select-bg) !important;
-    font-weight: 600;
     color: var(--select-color);
-    z-index: 5;
+    border-color: rgba(26,115,232,0.18) !important;
   }
+  td.drag-t { border-top:    2.5px solid var(--select-color) !important; }
+  td.drag-b { border-bottom: 2.5px solid var(--select-color) !important; }
+  td.drag-l { border-left:   2.5px solid var(--select-color) !important; }
+  td.drag-r { border-right:  2.5px solid var(--select-color) !important; }
 
-  /* ── SELECTED MONTH (precise cell-level borders) ── */
+  /* ── SELECTED MONTH ── */
   td.mhl {
     background: var(--select-bg) !important;
     color: var(--select-color);
@@ -425,6 +398,47 @@
     border-right: 2.5px solid var(--select-color) !important;
   }
 
+  /* ── MOBILE ── */
+  @media (max-width: 600px) {
+    :root {
+      --header-h: 44px;
+      --cell-h: 44px;
+    }
+
+    .page { max-width: 100%; }
+
+    .topbar { padding: 0 10px; gap: 6px; }
+    .topbar-logo svg { width: 20px; height: 20px; }
+    .topbar-title { font-size: 11px; letter-spacing: 1px; }
+    .built-by { display: none; }
+    .today-badge { font-size: 10px; padding: 3px 8px; letter-spacing: 0.3px; }
+    .diff-circle { width: 28px; height: 28px; }
+    .diff-circle .diff-num { font-size: 9px; }
+
+    .cal-scroll { overflow-x: hidden; }
+    table { min-width: 0; }
+
+    colgroup col.col-month { width: 22px; }
+    colgroup col.col-week  { width: 20px; }
+    colgroup col.col-day   { width: calc((100% - 42px) / 7); }
+
+    td.month-label .month-name { font-size: 9px; letter-spacing: 1px; }
+    td.month-label .month-year { display: none; }
+
+    td.week-num { font-size: 8px; }
+    td.day-cell { font-size: 11px; font-weight: 400; }
+
+    td.day-cell.holiday-named .holiday-nick .hk-name { font-size: 7px; }
+    td.day-cell.holiday-named .holiday-nick .hk-date { font-size: 6.5px; }
+
+    thead tr th { font-size: 9px; letter-spacing: 0.5px; padding: 7px 2px; }
+    thead tr th.th-month { font-size: 7px; }
+    thead tr th.th-week  { font-size: 7px; }
+
+    .legend { bottom: 8px; right: 8px; padding: 6px 10px; gap: 10px; font-size: 9px; }
+    .legend-swatch { width: 11px; height: 11px; }
+  }
+
   /* ── SCROLLBAR ── */
   .cal-scroll::-webkit-scrollbar { width: 6px; }
   .cal-scroll::-webkit-scrollbar-track { background: #f0f2f7; }
@@ -445,7 +459,7 @@
   }
   .built-by a:hover { color: rgba(255,255,255,0.6); text-decoration: underline; }
 
-  /* ── DAY DIFF CIRCLE ── */
+  /* ── DAY COUNTER CIRCLE ── */
   .diff-circle {
     display: flex;
     flex-direction: column;
@@ -472,9 +486,6 @@
     transition: all 0.2s;
   }
   .diff-circle.has-value .diff-num { color: #7eb8ff; }
-  .diff-circle .diff-label {
-    display: none;
-  }
 
   /* ── LEGEND ── */
   .legend {
@@ -508,16 +519,14 @@
     flex-shrink: 0;
   }
 
-  .ls-today { border: 2.5px solid var(--today-color); background: var(--today-bg); }
-  .ls-select { border: 2.5px solid var(--select-color); background: var(--select-bg); }
+  .ls-today   { border: 2.5px solid var(--today-color); background: var(--today-bg); }
+  .ls-select  { border: 2.5px solid var(--select-color); background: var(--select-bg); }
   .ls-holiday { background: var(--holiday-a); border: 1px solid #e8c080; position: relative; }
   .ls-holiday::after {
     content: '';
     position: absolute;
-    top: 1px;
-    right: 1px;
-    width: 4px;
-    height: 4px;
+    top: 1px; right: 1px;
+    width: 4px; height: 4px;
     border-radius: 50%;
     background: #e8a040;
   }
@@ -546,14 +555,10 @@
       <div class="topbar-title">Horizon</div>
       <div class="built-by">by <a href="https://fortismarka.com" target="_blank">Fortis Marka</a></div>
     </div>
-    <div class="topbar-divider"></div>
-    <span class="topbar-sub">Planning Calendar</span>
     <div class="topbar-right">
       <div class="diff-circle" id="diffCircle">
         <span class="diff-num" id="diffNum">—</span>
-        <span class="diff-label" id="diffLabel">days</span>
       </div>
-      <span id="current-month-display"></span>
       <button class="today-badge" onclick="scrollToToday()">⬤ Today</button>
     </div>
   </header>
@@ -700,7 +705,7 @@ while (cur <= endDate) {
   weeks.push(week);
 }
 
-// ── MONTH GROUPS (based on Sunday of each week) ───────────────────────────────
+// ── MONTH GROUPS ─────────────────────────────────────────────────────────────
 
 const monthGroups = [];
 let prevMK = null;
@@ -714,38 +719,30 @@ weeks.forEach((week, i) => {
   monthGroups[monthGroups.length - 1].rowspan++;
 });
 
-// rowIdx → monthGroup
 const rowToMG = {};
 monthGroups.forEach(mg => {
   for (let r = mg.startRow; r < mg.startRow + mg.rowspan; r++) rowToMG[r] = mg;
 });
 
-// monthGroup index for color alternating
 monthGroups.forEach((mg, i) => { mg.idx = i; });
 
 const MONTH_NAMES = ['January','February','March','April','May','June',
                      'July','August','September','October','November','December'];
-
-function mgColorClass(mg) {
-  return mg.idx % 2 === 0 ? 'month-even' : 'month-odd';
-}
 
 function mlColorClass(mg) {
   return mg.idx % 2 === 0 ? 'ml-even' : 'ml-odd';
 }
 
 function dayColorClass(date) {
-  // determine which month group this date falls into
-  // Use the same logic: find the month group that claims this week
-  // For day color, base on actual date's month parity vs month group
   const absMonth = date.getFullYear() * 12 + date.getMonth();
   return absMonth % 2 === 0 ? 'month-even' : 'month-odd';
 }
 
 // ── BUILD TABLE ───────────────────────────────────────────────────────────────
 
-const tbody = document.getElementById('calBody');
-const allCells = []; // allCells[rowIdx][dayIdx] = td
+const tbody       = document.getElementById('calBody');
+const allCells    = [];
+const weekNumCells = [];
 let todayRow = null;
 
 weeks.forEach((week, rowIdx) => {
@@ -754,7 +751,6 @@ weeks.forEach((week, rowIdx) => {
 
   const mg = rowToMG[rowIdx];
 
-  // Month label cell (only on first row of each month group)
   if (mg && mg.startRow === rowIdx) {
     const td = document.createElement('td');
     td.className = `month-label ${mlColorClass(mg)}`;
@@ -765,32 +761,26 @@ weeks.forEach((week, rowIdx) => {
     tr.appendChild(td);
   }
 
-  // Track rows per month group
   if (!mg.rows) mg.rows = [];
   mg.rows.push(tr);
 
-  // Week number
   const wkTd = document.createElement('td');
   wkTd.className = 'week-num';
   wkTd.textContent = String(getWeekNum(week[0])).padStart(2, '0');
   wkTd.title = 'Click to highlight week';
   wkTd.addEventListener('click', e => { e.stopPropagation(); handleWeekClick(tr); });
+  weekNumCells[rowIdx] = wkTd;
   tr.appendChild(wkTd);
 
-  // Day cells
   week.forEach((date, dayIdx) => {
     const td = document.createElement('td');
     td.className = 'day-cell';
-
-    // Month color (based on actual date's month)
     td.classList.add(dayColorClass(date));
 
-    // Month boundary marker (new month starts mid-row)
     if (date.getDate() === 1 && dayIdx > 0) {
       td.classList.add('month-start');
     }
 
-    // Holiday
     const hk = dateKey(date);
     if (holidays[hk]) {
       td.classList.add('holiday');
@@ -798,19 +788,18 @@ weeks.forEach((week, rowIdx) => {
 
       const isObserved = holidays[hk].includes('(Observed)');
 
-      // Nickname map (only for non-observed holidays)
       const nicknames = {
-        "New Year's Day":   date => String(date.getFullYear()),
+        "New Year's Day":             d => String(d.getFullYear()),
         "Martin Luther King Jr. Day": () => 'MLK',
-        "Presidents' Day":  () => 'Presidents\nDay',
-        "Memorial Day":     () => 'Memorial\nDay',
-        "Juneteenth":       () => 'Juneteenth',
-        "Independence Day": () => '4th\nJuly',
-        "Labor Day":        () => 'Labor\nDay',
-        "Columbus Day":     () => 'Columbus\nDay',
-        "Veterans Day":     () => 'Veterans\nDay',
-        "Thanksgiving Day": () => 'Thanksgiving',
-        "Christmas Day":    () => 'Christmas',
+        "Presidents' Day":            () => 'Presidents\nDay',
+        "Memorial Day":               () => 'Memorial\nDay',
+        "Juneteenth":                 () => 'Juneteenth',
+        "Independence Day":           () => '4th\nJuly',
+        "Labor Day":                  () => 'Labor\nDay',
+        "Columbus Day":               () => 'Columbus\nDay',
+        "Veterans Day":               () => 'Veterans\nDay',
+        "Thanksgiving Day":           () => 'Thanksgiving',
+        "Christmas Day":              () => 'Christmas',
       };
 
       const matchKey = Object.keys(nicknames).find(k => holidays[hk] === k);
@@ -823,7 +812,6 @@ weeks.forEach((week, rowIdx) => {
       }
     }
 
-    // Today
     if (sameDay(date, today)) {
       td.classList.add('today');
       todayRow = tr;
@@ -831,12 +819,11 @@ weeks.forEach((week, rowIdx) => {
 
     td.textContent = date.getDate();
     if (td.classList.contains('holiday-named')) {
-      // nickname already set via innerHTML — restore it, textContent nuked it
       const nick = td.dataset.nick;
       const lines = nick.split('\n');
       td.innerHTML = `<div class="holiday-nick">${lines.map((l,i) => `<span class="${i===0?'hk-name':'hk-date'}">${l}</span>`).join('')}</div>`;
     }
-    td.addEventListener('click', e => { e.stopPropagation(); handleDayClick(td); });
+
     if (!allCells[rowIdx]) allCells[rowIdx] = [];
     allCells[rowIdx][dayIdx] = td;
     tr.appendChild(td);
@@ -845,36 +832,43 @@ weeks.forEach((week, rowIdx) => {
   tbody.appendChild(tr);
 });
 
-// ── DAY DIFF CIRCLE ──────────────────────────────────────────────────────────
+// ── DATE → CELL LOOKUP ───────────────────────────────────────────────────────
+
+const dateToCell = {};
+weeks.forEach((week, rowIdx) => {
+  week.forEach((date, dayIdx) => {
+    dateToCell[dateKey(date)] = { rowIdx, dayIdx };
+  });
+});
+
+// ── COUNTER ──────────────────────────────────────────────────────────────────
 
 const diffCircle = document.getElementById('diffCircle');
 const diffNum    = document.getElementById('diffNum');
-const diffLabel  = document.getElementById('diffLabel');
 
-function updateDiffCircle(targetDate) {
-  if (!targetDate) {
+function updateCounter(count) {
+  if (!count) {
     diffCircle.classList.remove('has-value');
     diffNum.textContent = '—';
-    diffLabel.textContent = 'days';
     return;
   }
-  const msPerDay = 86400000;
-  const diff = Math.round((targetDate - today) / msPerDay);
-  const abs  = Math.abs(diff);
   diffCircle.classList.add('has-value');
-  diffNum.textContent = (diff > 0 ? '+' : diff < 0 ? '-' : '') + abs;
-  diffLabel.textContent = abs === 1 ? 'day' : 'days';
+  diffNum.textContent = count;
 }
 
 // ── SELECTION STATE ───────────────────────────────────────────────────────────
 
-let selectedDay   = null;
 let selectedWeek  = null;
 let selectedMonth = null;
+let dragRangeCells = [];
+
+function clearDragRange() {
+  dragRangeCells.forEach(td => td.classList.remove('drag-range','drag-t','drag-b','drag-l','drag-r'));
+  dragRangeCells = [];
+}
 
 function clearAll() {
-  if (selectedDay)  { selectedDay.classList.remove('selected-day');   selectedDay  = null; }
-  if (selectedWeek) { selectedWeek.classList.remove('selected-week'); selectedWeek = null; }
+  if (selectedWeek)  { selectedWeek.classList.remove('selected-week');  selectedWeek  = null; }
   if (selectedMonth) {
     if (selectedMonth.hlCells) {
       selectedMonth.hlCells.forEach(td => td.classList.remove('mhl','mhl-t','mhl-b','mhl-l','mhl-r'));
@@ -882,7 +876,8 @@ function clearAll() {
     if (selectedMonth.labelTd) selectedMonth.labelTd.classList.remove('selected-month-label');
     selectedMonth = null;
   }
-  updateDiffCircle(null);
+  clearDragRange();
+  updateCounter(0);
 }
 
 function highlightMonth(mg) {
@@ -917,64 +912,211 @@ function handleMonthClick(mg, td) {
     td.classList.add('selected-month-label');
     mg.labelTd = td;
     selectedMonth = mg;
-  }
-}
-
-function handleDayClick(td) {
-  if (td.classList.contains('today')) { clearAll(); return; }
-  const wasMe = td === selectedDay;
-  clearAll();
-  if (!wasMe) {
-    td.classList.add('selected-day');
-    selectedDay = td;
-    // recover the date from the cell's position
-    const tr = td.closest('tr');
-    const rowIdx = parseInt(tr.dataset.rowIdx);
-    const cellIdx = Array.from(tr.querySelectorAll('td.day-cell')).indexOf(td);
-    updateDiffCircle(weeks[rowIdx][cellIdx]);
+    updateCounter(new Date(mg.year, mg.month + 1, 0).getDate());
   }
 }
 
 function handleWeekClick(tr) {
   const wasMe = tr === selectedWeek;
   clearAll();
-  if (!wasMe) { tr.classList.add('selected-week'); selectedWeek = tr; }
+  if (!wasMe) {
+    tr.classList.add('selected-week');
+    selectedWeek = tr;
+    updateCounter(7);
+  }
 }
 
-// Click anywhere outside → clear selection
+// ── DRAG RANGE SELECTION ─────────────────────────────────────────────────────
+
+function getCellDate(td) {
+  const tr = td.closest('tr');
+  if (!tr) return null;
+  const rowIdx = parseInt(tr.dataset.rowIdx);
+  const dayIdx = Array.from(tr.querySelectorAll('td.day-cell')).indexOf(td);
+  return (weeks[rowIdx] && dayIdx >= 0) ? weeks[rowIdx][dayIdx] : null;
+}
+
+function applyRangeHighlight(dateA, dateB) {
+  clearDragRange();
+
+  const s = dateA <= dateB ? dateA : dateB;
+  const e = dateA <= dateB ? dateB : dateA;
+
+  const inSet = new Set();
+  const c = new Date(s);
+  while (c <= e) {
+    const cell = dateToCell[dateKey(c)];
+    if (cell) inSet.add(`${cell.rowIdx}-${cell.dayIdx}`);
+    c.setDate(c.getDate() + 1);
+  }
+
+  inSet.forEach(key => {
+    const [ri, di] = key.split('-').map(Number);
+    const td = allCells[ri]?.[di];
+    if (!td) return;
+    td.classList.add('drag-range');
+    if (!inSet.has(`${ri-1}-${di}`)) td.classList.add('drag-t');
+    if (!inSet.has(`${ri+1}-${di}`)) td.classList.add('drag-b');
+    if (!inSet.has(`${ri}-${di-1}`)) td.classList.add('drag-l');
+    if (!inSet.has(`${ri}-${di+1}`)) td.classList.add('drag-r');
+    dragRangeCells.push(td);
+  });
+
+  updateCounter(inSet.size);
+}
+
+// ── MOUSE DRAG ───────────────────────────────────────────────────────────────
+
+let isDragging       = false;
+let dragMode         = null; // 'day' | 'week'
+let dragAnchor       = null;
+let dragCurrent      = null;
+let dragAnchorRow    = null;
+let dragCurrentRow   = null;
+
+const calTable = document.getElementById('calTable');
+
+function applyWeekRangeHighlight(rowA, rowB) {
+  const startRow = Math.min(rowA, rowB);
+  const endRow   = Math.max(rowA, rowB);
+  applyRangeHighlight(weeks[startRow][0], weeks[endRow][6]);
+  // Also highlight week-num cells with left border
+  for (let ri = startRow; ri <= endRow; ri++) {
+    const wk = weekNumCells[ri];
+    if (!wk) continue;
+    wk.classList.add('drag-range', 'drag-l');
+    if (ri === startRow) wk.classList.add('drag-t');
+    if (ri === endRow)   wk.classList.add('drag-b');
+    dragRangeCells.push(wk);
+  }
+}
+
+calTable.addEventListener('mousedown', e => {
+  const dayTd  = e.target.closest('td.day-cell');
+  const weekTd = e.target.closest('td.week-num');
+  if (!dayTd && !weekTd) return;
+  e.preventDefault();
+  isDragging = true;
+  clearAll();
+
+  if (dayTd) {
+    dragMode   = 'day';
+    dragAnchor = getCellDate(dayTd);
+    dragCurrent = dragAnchor;
+    if (dragAnchor) applyRangeHighlight(dragAnchor, dragCurrent);
+  } else {
+    dragMode       = 'week';
+    dragAnchorRow  = parseInt(weekTd.closest('tr').dataset.rowIdx);
+    dragCurrentRow = dragAnchorRow;
+    applyWeekRangeHighlight(dragAnchorRow, dragCurrentRow);
+  }
+});
+
+calTable.addEventListener('mousemove', e => {
+  if (!isDragging) return;
+
+  if (dragMode === 'day') {
+    if (!dragAnchor) return;
+    const td = e.target.closest('td.day-cell');
+    if (!td) return;
+    const d = getCellDate(td);
+    if (!d || (dragCurrent && d.getTime() === dragCurrent.getTime())) return;
+    dragCurrent = d;
+    applyRangeHighlight(dragAnchor, dragCurrent);
+  } else if (dragMode === 'week') {
+    const td = e.target.closest('td.day-cell, td.week-num');
+    if (!td) return;
+    const tr = td.closest('tr');
+    if (!tr) return;
+    const rowIdx = parseInt(tr.dataset.rowIdx);
+    if (isNaN(rowIdx) || rowIdx === dragCurrentRow) return;
+    dragCurrentRow = rowIdx;
+    applyWeekRangeHighlight(dragAnchorRow, dragCurrentRow);
+  }
+});
+
+document.addEventListener('mouseup', () => { isDragging = false; });
+
+// Stop table clicks reaching the document clear-all listener
+calTable.addEventListener('click', e => e.stopPropagation());
+
+// ── TOUCH DRAG (long-press to enter drag mode, then any direction) ────────────
+
+let touchAnchor     = null;
+let touchInDrag     = false;
+let touchLast       = null;
+let touchTimer      = null;
+let touchStartX     = 0;
+let touchStartY     = 0;
+
+calTable.addEventListener('touchstart', e => {
+  const touch = e.touches[0];
+  touchStartX = touch.clientX;
+  touchStartY = touch.clientY;
+  touchInDrag = false;
+  touchLast   = null;
+
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const td = el && el.closest('td.day-cell');
+  touchAnchor = td ? getCellDate(td) : null;
+
+  if (touchAnchor) {
+    touchTimer = setTimeout(() => {
+      touchInDrag = true;
+      clearAll();
+      applyRangeHighlight(touchAnchor, touchAnchor);
+      if (navigator.vibrate) navigator.vibrate(15);
+    }, 280);
+  }
+}, { passive: true });
+
+calTable.addEventListener('touchmove', e => {
+  const touch = e.touches[0];
+
+  if (!touchInDrag) {
+    // Cancel long-press if finger moved too much (user is scrolling)
+    const dx = Math.abs(touch.clientX - touchStartX);
+    const dy = Math.abs(touch.clientY - touchStartY);
+    if ((dx > 8 || dy > 8) && touchTimer) {
+      clearTimeout(touchTimer);
+      touchTimer = null;
+    }
+    return;
+  }
+
+  e.preventDefault();
+  const el = document.elementFromPoint(touch.clientX, touch.clientY);
+  const td = el && el.closest('td.day-cell');
+  if (!td) return;
+  const d = getCellDate(td);
+  if (!d || (touchLast && d.getTime() === touchLast.getTime())) return;
+  touchLast = d;
+  applyRangeHighlight(touchAnchor, d);
+}, { passive: false });
+
+calTable.addEventListener('touchend', () => {
+  clearTimeout(touchTimer);
+  touchTimer = null;
+  // Simple tap (no drag): select single day
+  if (!touchInDrag && touchAnchor) {
+    clearAll();
+    applyRangeHighlight(touchAnchor, touchAnchor);
+  }
+  touchInDrag = false;
+  touchAnchor = null;
+  touchLast   = null;
+}, { passive: true });
+
+// Click anywhere outside calendar → clear selection
 document.addEventListener('click', () => clearAll());
 
 // ── SCROLL TO TODAY ───────────────────────────────────────────────────────────
 
 function scrollToToday() {
-  if (todayRow) {
-    todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  if (todayRow) todayRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 setTimeout(scrollToToday, 80);
-
-// ── CURRENT MONTH DISPLAY (updates on scroll) ─────────────────────────────────
-
-const calScroll   = document.getElementById('calScroll');
-const monthDisplay = document.getElementById('current-month-display');
-
-function updateMonthDisplay() {
-  // Find which row is at ~30% from top of viewport
-  const scrollTop   = calScroll.scrollTop;
-  const viewHeight  = calScroll.clientHeight;
-  const targetY     = scrollTop + viewHeight * 0.25;
-  const headerH     = 37; // thead approx height
-  const rowH        = 59;
-  const rowIdx      = Math.max(0, Math.min(weeks.length - 1, Math.floor((targetY - headerH) / rowH)));
-  const mg          = rowToMG[rowIdx];
-  if (mg) {
-    monthDisplay.textContent = `${MONTH_NAMES[mg.month].toUpperCase()} ${mg.year}`;
-  }
-}
-
-calScroll.addEventListener('scroll', updateMonthDisplay, { passive: true });
-updateMonthDisplay();
 </script>
 </div><!-- .page -->
 </div><!-- .page-outer -->
